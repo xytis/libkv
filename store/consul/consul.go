@@ -301,13 +301,15 @@ func (s *Consul) Watch(key string, stopCh <-chan struct{}) (<-chan *store.KVPair
 			opts.WaitIndex = meta.LastIndex
 
 			// Return the value to the channel
-			// FIXME: What happens when a key is deleted?
 			if pair != nil {
 				watchCh <- &store.KVPair{
 					Key:       pair.Key,
 					Value:     pair.Value,
 					LastIndex: pair.ModifyIndex,
 				}
+			} else {
+				//Report nil change (a.k.a. key was deleted)
+				watchCh <- nil
 			}
 		}
 	}()
